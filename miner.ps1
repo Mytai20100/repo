@@ -5,7 +5,7 @@ $start = Get-Date
 $scriptDir = if ($MyInvocation.MyCommand.Path) { Split-Path -Parent $MyInvocation.MyCommand.Path } else { (Get-Location).Path }
 
 # Config (thay đổi nếu muốn)
-$spamEnabled = $true
+$spamEnabled = $false
 $popPerSecond = 12
 $displaySeconds = 4
 $totalSpamDuration = 4
