@@ -1,6 +1,7 @@
-# NetGuard_Pro_v3.ps1
-# Advanced Network Control System - Block LAN/School Networks while maintaining server visibility
+# Nolan.ps1
+# MU hehee 
 # Enhanced Hacker-Style Console UI
+#Power by mytai
 # Run as Administrator
 
 #Requires -RunAsAdministrator
@@ -68,77 +69,128 @@ function Invoke-StealthWrite {
 
 function Show-PhantomLogo {
     Clear-Host
-    $windowWidth = try { (Get-Host).UI.RawUI.WindowSize.Width } catch { 80 }
+    $windowWidth = try { (Get-Host).UI.RawUI.WindowSize.Width } catch { 120 }
     
-    $logoFrames = @(
-        @(
-"  ███╗   ██╗███████╗████████╗ ██████╗ ██╗   ██╗ █████╗ ██████╗ ██████╗ ",
-"  ████╗  ██║██╔════╝╚══██╔══╝██╔════╝ ██║   ██║██╔══██╗██╔══██╗██╔══██╗",
-"  ██╔██╗ ██║█████╗     ██║   ██║  ███╗██║   ██║███████║██████╔╝██║  ██║",
-"  ██║╚██╗██║██╔══╝     ██║   ██║   ██║██║   ██║██╔══██║██╔══██╗██║  ██║",
-"  ██║ ╚████║███████╗   ██║   ╚██████╔╝╚██████╔╝██║  ██║██║  ██║██████╔╝",
-"  ╚═╝  ╚═══╝╚══════╝   ╚═╝    ╚═════╝  ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝╚═════╝ ",
-"",
-"                    ██████╗ ██████╗  ██████╗ ",
-"                    ██╔══██╗██╔══██╗██╔═══██╗",
-"                    ██████╔╝██████╔╝██║   ██║",
-"                    ██╔═══╝ ██╔══██╗██║   ██║",
-"                    ██║     ██║  ██║╚██████╔╝",
-"                    ╚═╝     ╚═╝  ╚═╝ ╚═════╝ "
-        )
-    )
+   $logoLines = @(
+    "",
+    "   ##     ##  #######  #######   ######   ##   ##  #####   #####   ##### ",
+    "   ###    ##  ##          ##    ##        ##   ## ##   ##  ##   ## ##   ##",
+    "   ## ##  ##  #####       ##    ##   ###  ##   ## #######  #####   ##   ##",
+    "   ##  ## ##  ##          ##    ##    ##  ##   ## ##   ##  ##   ## ##   ##",
+    "   ##   ####  #######     ##     ######    #####  ##   ##  ##   ## ##### ",
+    "",
+    "                       ######   ######   ######  ",
+    "                       ##   ##  ##   ## ##    ## ",
+    "                       ######   ######  ##    ## ",
+    "                       ##       ##   ## ##    ## ",
+    "                       ##       ##   ##  ######  ",
+    "              Power by servernotdie              "
+)
+
     
-    foreach ($frame in $logoFrames) {
-        foreach ($line in $frame) {
-            if ($windowWidth -gt $line.Length) {
-                $padding = [int](($windowWidth - $line.Length) / 2)
-                Write-Host (" " * $padding) -NoNewline
-            }
-            Invoke-StealthWrite $line 'Cyan'
+    foreach ($line in $logoLines) {
+        if ($line.Trim() -ne "") {
+            $padding = [math]::Max(0, [int](($windowWidth - $line.Length) / 2))
+            Write-Host (" " * $padding) -NoNewline
         }
+        Invoke-StealthWrite $line 'Cyan'
     }
     
-    Write-Host ""
-    $subtitle = "═══ PHANTOM PROTOCOL v$($script:SystemConfig.Version) ═══"
-    $subtitlePadding = [int](($windowWidth - $subtitle.Length) / 2)
+    $subtitle = "======= PHANTOM PROTOCOL v$($script:SystemConfig.Version) ======="
+    $subtitlePadding = [math]::Max(0, [int](($windowWidth - $subtitle.Length) / 2))
     Write-Host (" " * $subtitlePadding) -NoNewline
     Invoke-StealthWrite $subtitle 'DarkCyan'
     
-    $description = "Advanced Network Stealth Operations"
-    $descPadding = [int](($windowWidth - $description.Length) / 2)
+    $description = "< Advanced Network Stealth Operations >"
+    $descPadding = [math]::Max(0, [int](($windowWidth - $description.Length) / 2))
     Write-Host (" " * $descPadding) -NoNewline
-    Invoke-StealthWrite $description 'DarkGreen'
+    Invoke-StealthWrite $description 'Green'
     
-    Write-Host ("-" * [Math]::Min($windowWidth, 70)) -ForegroundColor DarkGray
+    $separator = "=" * [math]::Min($windowWidth - 10, 80)
+    $sepPadding = [math]::Max(0, [int](($windowWidth - $separator.Length) / 2))
+    Write-Host (" " * $sepPadding) -NoNewline
+    Write-Host $separator -ForegroundColor DarkGray
+    Write-Host ""
 }
 
 function Show-OperationalInterface {
     Show-PhantomLogo
     
+    $windowWidth = try { (Get-Host).UI.RawUI.WindowSize.Width } catch { 120 }
     $currentStatus = Get-NetworkStatus
-    Invoke-StealthWrite "┌─ SYSTEM STATUS ────────────────────────────┐" 'Gray'
-    Invoke-StealthWrite "│ Network State: $($currentStatus.PadRight(26))│" 'Cyan'
-    Invoke-StealthWrite "│ Protection Level: $(Get-ProtectionLevel)                    │" 'Green'
-    Invoke-StealthWrite "└────────────────────────────────────────────┘" 'Gray'
+    $protectionLevel = Get-ProtectionLevel
+    
+    # Status Box - Centered
+    $statusBox = @(
+        "+======================================================+",
+        "|                   SYSTEM STATUS                      |",
+        "+======================================================+",
+        "|  Network State: $($currentStatus.PadRight(32)) |",
+        "|  Protection Level: $($protectionLevel.PadRight(29)) |",
+        "+======================================================+"
+    )
+    
+    foreach ($line in $statusBox) {
+        $padding = [math]::Max(0, [int](($windowWidth - $line.Length) / 2))
+        Write-Host (" " * $padding) -NoNewline
+        if ($line.Contains("Network State")) {
+            Invoke-StealthWrite $line 'Cyan'
+        } elseif ($line.Contains("Protection Level")) {
+            Invoke-StealthWrite $line 'Green'
+        } else {
+            Invoke-StealthWrite $line 'Gray'
+        }
+    }
     Write-Host ""
     
-    Invoke-StealthWrite "┌─ AVAILABLE OPERATIONS ─────────────────────┐" 'Gray'
-    Invoke-StealthWrite "│                                            │" 'Gray'
-    Invoke-StealthWrite "│ [1] █ ENGAGE PHANTOM MODE                  │" 'Red'
-    Invoke-StealthWrite "│     └─ Block LAN/School + Allow Gaming     │" 'DarkRed'
-    Invoke-StealthWrite "│                                            │" 'Gray'
-    Invoke-StealthWrite "│ [2] █ DISENGAGE PROTOCOLS                  │" 'Yellow'
-    Invoke-StealthWrite "│     └─ Restore Normal Network Access       │" 'DarkYellow'
-    Invoke-StealthWrite "│                                            │" 'Gray'
-    Invoke-StealthWrite "│ [3] █ EMERGENCY PURGE                      │" 'Magenta'
-    Invoke-StealthWrite "│     └─ Force Clean All Configurations      │" 'DarkMagenta'
-    Invoke-StealthWrite "│                                            │" 'Gray'
-    Invoke-StealthWrite "│ [4] █ SYSTEM DIAGNOSTICS                   │" 'Blue'
-    Invoke-StealthWrite "│     └─ Network Analysis & Status Report    │" 'DarkBlue'
-    Invoke-StealthWrite "│                                            │" 'Gray'
-    Invoke-StealthWrite "│ [0] █ TERMINATE SESSION                    │" 'DarkRed'
-    Invoke-StealthWrite "│                                            │" 'Gray'
-    Invoke-StealthWrite "└────────────────────────────────────────────┘" 'Gray'
+    # Operations Menu - Centered
+    $menuBox = @(
+        "+======================================================+",
+        "|                AVAILABLE OPERATIONS                  |",
+        "+======================================================+",
+        "|                                                      |",
+        "|  [1] * ENGAGE PHANTOM MODE                           |",
+        "|      +-- Block LAN/School + Allow Gaming             |",
+        "|                                                      |",
+        "|  [2] # DISENGAGE PROTOCOLS                           |",
+        "|      +-- Restore Normal Network Access               |",
+        "|                                                      |",
+        "|  [3] ! EMERGENCY PURGE                               |",
+        "|      +-- Force Clean All Configurations              |",
+        "|                                                      |",
+        "|  [4] @ SYSTEM DIAGNOSTICS                            |",
+        "|      +-- Network Analysis & Status Report            |",
+        "|                                                      |",
+        "|  [5] & LAN NETWORK SCANNER                           |",
+        "|      +-- Discover Connected Devices                  |",
+        "|                                                      |",
+        "|  [0] X TERMINATE SESSION                             |",
+        "|                                                      |",
+        "+======================================================+"
+    )
+    
+    foreach ($line in $menuBox) {
+        $padding = [math]::Max(0, [int](($windowWidth - $line.Length) / 2))
+        Write-Host (" " * $padding) -NoNewline
+        
+        if ($line.Contains("[1]")) {
+            Invoke-StealthWrite $line 'Red'
+        } elseif ($line.Contains("[2]")) {
+            Invoke-StealthWrite $line 'Yellow'
+        } elseif ($line.Contains("[3]")) {
+            Invoke-StealthWrite $line 'Magenta'
+        } elseif ($line.Contains("[4]")) {
+            Invoke-StealthWrite $line 'Blue'
+        } elseif ($line.Contains("[5]")) {
+            Invoke-StealthWrite $line 'Cyan'
+        } elseif ($line.Contains("[0]")) {
+            Invoke-StealthWrite $line 'DarkRed'
+        } elseif ($line.Contains("+--")) {
+            Invoke-StealthWrite $line 'DarkGray'
+        } else {
+            Invoke-StealthWrite $line 'Gray'
+        }
+    }
     Write-Host ""
 }
 
@@ -178,19 +230,30 @@ function Invoke-HackerProgress {
         [string[]]$StatusMessages = @("Initializing...", "Processing...", "Finalizing...")
     )
     
-    $startTime = Get-Date
-    $totalSteps = 25
+    $windowWidth = try { (Get-Host).UI.RawUI.WindowSize.Width } catch { 120 }
+    $totalSteps = 30
     $stepDuration = [int]($DurationMs / $totalSteps)
     
     for ($step = 0; $step -le $totalSteps; $step++) {
         $percentage = [int](($step / $totalSteps) * 100)
-        $progressBar = ('█' * $step).PadRight($totalSteps, '▒')
+        $progressFilled = [int](($step / $totalSteps) * 50)
+        $progressBar = ('#' * $progressFilled).PadRight(50, '.')
         $currentStatus = $StatusMessages[$step % $StatusMessages.Length]
         
-        Write-Host -NoNewline "`r$OperationName [$progressBar] $percentage% - $currentStatus"
+        $progressLine = "$OperationName [$progressBar] $percentage% - $currentStatus"
+        $padding = [math]::Max(0, [int](($windowWidth - $progressLine.Length) / 2))
+        
+        Write-Host -NoNewline ("`r" + (" " * $windowWidth) + "`r")
+        Write-Host (" " * $padding) -NoNewline
+        Write-Host -NoNewline "$OperationName [" -ForegroundColor Yellow
+        Write-Host -NoNewline ('#' * $progressFilled) -ForegroundColor Green
+        Write-Host -NoNewline ('.' * (50 - $progressFilled)) -ForegroundColor DarkGray
+        Write-Host -NoNewline "] $percentage% - " -ForegroundColor Yellow
+        Write-Host -NoNewline $currentStatus -ForegroundColor Cyan
+        
         Start-Sleep -Milliseconds $stepDuration
     }
-    Write-Host ""
+    Write-Host "`n"
 }
 
 function New-StealthRule {
@@ -251,9 +314,9 @@ function New-BlockRule {
 
 # ========== CORE OPERATIONS ==========
 function Invoke-PhantomEngagement {
-    Invoke-StealthWrite "`n┌─ ENGAGING PHANTOM PROTOCOL ───────────────┐" 'Red'
-    Invoke-StealthWrite "│ Initializing stealth network operations... │" 'Yellow'
-    Invoke-StealthWrite "└────────────────────────────────────────────┘" 'Red'
+    Invoke-StealthWrite "`n+-- ENGAGING PHANTOM PROTOCOL --------------+" 'Red'
+    Invoke-StealthWrite "| Initializing stealth network operations... |" 'Yellow'
+    Invoke-StealthWrite "+--------------------------------------------+" 'Red'
     
     Invoke-HackerProgress -OperationName "PHANTOM_INIT" -DurationMs 800 -StatusMessages @("Scanning network topology...", "Configuring stealth rules...", "Applying restrictions...")
     
@@ -261,9 +324,9 @@ function Invoke-PhantomEngagement {
     foreach ($profile in @("Domain", "Private", "Public")) {
         try {
             Set-NetFirewallProfile -Profile $profile -DefaultOutboundAction Block -ErrorAction Stop
-            Invoke-StealthWrite "[✓] Profile $profile: Outbound traffic BLOCKED" 'Green'
+            Invoke-StealthWrite "[+] Profile ${profile} - Outbound traffic BLOCKED" 'Green'
         } catch {
-            Invoke-StealthWrite "[✗] Profile $profile: Configuration failed - $($_.Exception.Message)" 'Red'
+            Invoke-StealthWrite "[-] Profile ${profile} - Configuration failed: $($_.Exception.Message)" 'Red'
         }
     }
     
@@ -272,9 +335,9 @@ function Invoke-PhantomEngagement {
     foreach ($range in $script:BlockedRanges) {
         if (New-BlockRule -RangeCIDR $range) {
             $lanBlocked++
-            Invoke-StealthWrite "[✓] LAN Range $range: BLOCKED" 'Red'
+            Invoke-StealthWrite "[+] LAN Range ${range} - BLOCKED" 'Red'
         } else {
-            Invoke-StealthWrite "[✗] LAN Range $range: Block failed" 'Yellow'
+            Invoke-StealthWrite "[-] LAN Range ${range} - Block failed" 'Yellow'
         }
     }
     
@@ -286,29 +349,29 @@ function Invoke-PhantomEngagement {
         $success = New-StealthRule -RuleIdentifier $connection.ID -Protocol $connection.Protocol -Port $connection.Port -Description $connection.Description
         if ($success) {
             $allowRulesCreated++
-            Invoke-StealthWrite "[✓] $($connection.ID): $($connection.Description)" 'Green'
+            Invoke-StealthWrite "[+] $($connection.ID) - $($connection.Description)" 'Green'
         } else {
             $allowRulesFailed++
-            Invoke-StealthWrite "[✗] $($connection.ID): Rule creation failed" 'Yellow'
+            Invoke-StealthWrite "[-] $($connection.ID) - Rule creation failed" 'Yellow'
         }
     }
     
     Write-Host ""
-    Invoke-StealthWrite "┌─ PHANTOM PROTOCOL STATUS ─────────────────┐" 'Cyan'
-    Invoke-StealthWrite "│ LAN Ranges Blocked: $lanBlocked                     │" 'Red'
-    Invoke-StealthWrite "│ Allowed Rules Created: $allowRulesCreated              │" 'Green'
-    Invoke-StealthWrite "│ Failed Rules: $allowRulesFailed                        │" 'Yellow'
-    Invoke-StealthWrite "│                                            │" 'Cyan'
-    Invoke-StealthWrite "│ STATUS: PHANTOM MODE ACTIVE                │" 'Red'
-    Invoke-StealthWrite "└────────────────────────────────────────────┘" 'Cyan'
+    Invoke-StealthWrite "+-- PHANTOM PROTOCOL STATUS ----------------+" 'Cyan'
+    Invoke-StealthWrite "| LAN Ranges Blocked: $lanBlocked                     |" 'Red'
+    Invoke-StealthWrite "| Allowed Rules Created: $allowRulesCreated              |" 'Green'
+    Invoke-StealthWrite "| Failed Rules: $allowRulesFailed                        |" 'Yellow'
+    Invoke-StealthWrite "|                                            |" 'Cyan'
+    Invoke-StealthWrite "| STATUS: PHANTOM MODE ACTIVE                |" 'Red'
+    Invoke-StealthWrite "+--------------------------------------------+" 'Cyan'
     
     Invoke-HackerPause
 }
 
 function Invoke-PhantomDisengagement {
-    Invoke-StealthWrite "`n┌─ DISENGAGING PHANTOM PROTOCOL ────────────┐" 'Yellow'
-    Invoke-StealthWrite "│ Restoring standard network operations...   │" 'Green'
-    Invoke-StealthWrite "└────────────────────────────────────────────┘" 'Yellow'
+    Invoke-StealthWrite "`n+-- DISENGAGING PHANTOM PROTOCOL -----------+" 'Yellow'
+    Invoke-StealthWrite "| Restoring standard network operations...   |" 'Green'
+    Invoke-StealthWrite "+--------------------------------------------+" 'Yellow'
     
     Invoke-HackerProgress -OperationName "PHANTOM_DISENGAGE" -DurationMs 600 -StatusMessages @("Removing restrictions...", "Restoring access...", "Cleaning up...")
     
@@ -316,9 +379,9 @@ function Invoke-PhantomDisengagement {
     foreach ($profile in @("Domain", "Private", "Public")) {
         try {
             Set-NetFirewallProfile -Profile $profile -DefaultOutboundAction Allow -ErrorAction Stop
-            Invoke-StealthWrite "[✓] Profile $profile: Outbound traffic ALLOWED" 'Green'
+            Invoke-StealthWrite "[+] Profile ${profile} - Outbound traffic ALLOWED" 'Green'
         } catch {
-            Invoke-StealthWrite "[✗] Profile $profile: Restoration failed - $($_.Exception.Message)" 'Red'
+            Invoke-StealthWrite "[-] Profile ${profile} - Restoration failed: $($_.Exception.Message)" 'Red'
         }
     }
     
@@ -328,22 +391,22 @@ function Invoke-PhantomDisengagement {
         if ($phantomRules) {
             $ruleCount = ($phantomRules | Measure-Object).Count
             $phantomRules | Remove-NetFirewallRule -ErrorAction SilentlyContinue
-            Invoke-StealthWrite "[✓] Removed $ruleCount phantom protocol rules" 'Green'
+            Invoke-StealthWrite "[+] Removed $ruleCount phantom protocol rules" 'Green'
         } else {
             Invoke-StealthWrite "[i] No phantom rules found to remove" 'Yellow'
         }
     } catch {
-        Invoke-StealthWrite "[✗] Rule cleanup error: $($_.Exception.Message)" 'Red'
+        Invoke-StealthWrite "[-] Rule cleanup error: $($_.Exception.Message)" 'Red'
     }
     
-    Invoke-StealthWrite "`n[✓] PHANTOM PROTOCOL DISENGAGED - Normal network access restored" 'Green'
+    Invoke-StealthWrite "`n[+] PHANTOM PROTOCOL DISENGAGED - Normal network access restored" 'Green'
     Invoke-HackerPause
 }
 
 function Invoke-EmergencyPurge {
-    Invoke-StealthWrite "`n┌─ EMERGENCY PURGE PROTOCOL ────────────────┐" 'Magenta'
-    Invoke-StealthWrite "│ WARNING: This will force-clean all rules   │" 'Red'
-    Invoke-StealthWrite "└────────────────────────────────────────────┘" 'Magenta'
+    Invoke-StealthWrite "`n+-- EMERGENCY PURGE PROTOCOL ---------------+" 'Magenta'
+    Invoke-StealthWrite "| WARNING: This will force-clean all rules   |" 'Red'
+    Invoke-StealthWrite "+--------------------------------------------+" 'Magenta'
     
     $confirmation = Read-Host " Type 'PURGE_CONFIRMED' to proceed with emergency cleanup"
     if ($confirmation -ne "PURGE_CONFIRMED") {
@@ -365,22 +428,22 @@ function Invoke-EmergencyPurge {
         if ($allRules) {
             $leftoverCount = ($allRules | Measure-Object).Count
             $allRules | Remove-NetFirewallRule -ErrorAction SilentlyContinue
-            Invoke-StealthWrite "[✓] Force removed $leftoverCount leftover rules" 'Red'
+            Invoke-StealthWrite "[+] Force removed $leftoverCount leftover rules" 'Red'
         } else {
             Invoke-StealthWrite "[i] No leftover rules detected" 'Green'
         }
     } catch {
-        Invoke-StealthWrite "[✗] Emergency purge error: $($_.Exception.Message)" 'Red'
+        Invoke-StealthWrite "[-] Emergency purge error: $($_.Exception.Message)" 'Red'
     }
     
-    Invoke-StealthWrite "`n[✓] EMERGENCY PURGE COMPLETED - System restored to default state" 'Green'
+    Invoke-StealthWrite "`n[+] EMERGENCY PURGE COMPLETED - System restored to default state" 'Green'
     Invoke-HackerPause
 }
 
 function Invoke-SystemDiagnostics {
-    Invoke-StealthWrite "`n┌─ SYSTEM DIAGNOSTICS ──────────────────────┐" 'Blue'
-    Invoke-StealthWrite "│ Analyzing network configuration...         │" 'Cyan'
-    Invoke-StealthWrite "└────────────────────────────────────────────┘" 'Blue'
+    Invoke-StealthWrite "`n+-- SYSTEM DIAGNOSTICS ---------------------+" 'Blue'
+    Invoke-StealthWrite "| Analyzing network configuration...         |" 'Cyan'
+    Invoke-StealthWrite "+--------------------------------------------+" 'Blue'
     
     Invoke-HackerProgress -OperationName "DIAGNOSTICS" -DurationMs 700 -StatusMessages @("Scanning profiles...", "Analyzing rules...", "Generating report...")
     
@@ -392,7 +455,7 @@ function Invoke-SystemDiagnostics {
         foreach ($profile in $profiles) {
             $status = if ($profile.DefaultOutboundAction -eq 'Block') { "RESTRICTED" } else { "OPEN" }
             $color = if ($profile.DefaultOutboundAction -eq 'Block') { "Red" } else { "Green" }
-            Invoke-StealthWrite "Profile $($profile.Name): $status" $color
+            Invoke-StealthWrite "Profile $($profile.Name) - $status" $color
         }
     } catch {
         Invoke-StealthWrite "Profile analysis failed: $($_.Exception.Message)" 'Red'
@@ -410,7 +473,7 @@ function Invoke-SystemDiagnostics {
             $phantomRules | ForEach-Object {
                 $action = if ($_.Action -eq 'Block') { "BLOCK" } else { "ALLOW" }
                 $color = if ($_.Action -eq 'Block') { "Red" } else { "Green" }
-                Invoke-StealthWrite "  └─ $($_.DisplayName): $action" $color
+                Invoke-StealthWrite "  +-- $($_.DisplayName) - $action" $color
             }
         } else {
             Invoke-StealthWrite "No active phantom rules found" 'Yellow'
@@ -435,9 +498,137 @@ function Invoke-SystemDiagnostics {
     Invoke-HackerPause
 }
 
+function Invoke-LANScanner {
+    $windowWidth = try { (Get-Host).UI.RawUI.WindowSize.Width } catch { 120 }
+    
+    Invoke-StealthWrite "`n+======================================================+" 'Blue'
+    Invoke-StealthWrite "|                LAN NETWORK SCANNER                  |" 'Blue'
+    Invoke-StealthWrite "| Scanning for connected devices in local network...  |" 'Cyan'
+    Invoke-StealthWrite "+======================================================+" 'Blue'
+    
+    Invoke-HackerProgress -OperationName "LAN_SCANNER" -DurationMs 1500 -StatusMessages @("Detecting network interfaces...", "Scanning IP ranges...", "Resolving hostnames...", "Gathering device info...")
+    
+    $discoveredDevices = @()
+    
+    try {
+        # Get local network adapter info
+        $localAdapter = Get-NetAdapter | Where-Object { $_.Status -eq 'Up' -and $_.Virtual -eq $false } | Select-Object -First 1
+        $localIP = (Get-NetIPAddress -AddressFamily IPv4 -InterfaceIndex $localAdapter.InterfaceIndex -PrefixOrigin Dhcp,Manual -ErrorAction SilentlyContinue).IPAddress
+        
+        if (-not $localIP) {
+            $localIP = (Get-NetIPAddress -AddressFamily IPv4 | Where-Object { $_.IPAddress -match '^192\.168\.|^10\.|^172\.' } | Select-Object -First 1).IPAddress
+        }
+        
+        if ($localIP) {
+            $networkBase = ($localIP -split '\.')[0..2] -join '.'
+            $scanRange = "$networkBase.1-254"
+            
+            Invoke-StealthWrite "`n>> Scanning network range: $networkBase.0/24" 'Green'
+            Invoke-StealthWrite ">> Your IP: $localIP`n" 'Yellow'
+            
+            # Fast ping scan
+            $jobs = @()
+            1..254 | ForEach-Object {
+                $ip = "$networkBase.$_"
+                $jobs += Start-Job -ScriptBlock {
+                    param($targetIP)
+                    $ping = Test-Connection -ComputerName $targetIP -Count 1 -Quiet -TimeoutSeconds 1
+                    if ($ping) {
+                        try {
+                            $hostname = [System.Net.Dns]::GetHostEntry($targetIP).HostName
+                        } catch {
+                            $hostname = "Unknown"
+                        }
+                        return @{IP = $targetIP; Hostname = $hostname; Status = "Online"}
+                    }
+                } -ArgumentList $ip
+            }
+            
+            # Wait for jobs and collect results
+            $timeout = 10
+            $startTime = Get-Date
+            while ($jobs.Count -gt 0 -and ((Get-Date) - $startTime).TotalSeconds -lt $timeout) {
+                $completedJobs = $jobs | Where-Object { $_.State -eq 'Completed' }
+                foreach ($job in $completedJobs) {
+                    $result = Receive-Job $job
+                    if ($result) {
+                        $discoveredDevices += $result
+                    }
+                    Remove-Job $job
+                    $jobs = $jobs | Where-Object { $_.Id -ne $job.Id }
+                }
+                Start-Sleep -Milliseconds 100
+            }
+            
+            # Cleanup remaining jobs
+            $jobs | ForEach-Object { Stop-Job $_ -ErrorAction SilentlyContinue; Remove-Job $_ -ErrorAction SilentlyContinue }
+            
+        } else {
+            Invoke-StealthWrite "ERROR: Could not determine local network range" 'Red'
+            return
+        }
+        
+    } catch {
+        Invoke-StealthWrite "ERROR: Network scanning failed: $($_.Exception.Message)" 'Red'
+        return
+    }
+    
+    # Display results
+    Write-Host ""
+    if ($discoveredDevices.Count -gt 0) {
+        Invoke-StealthWrite "+================================================================+" 'Green'
+        Invoke-StealthWrite "|                        DISCOVERED DEVICES                     |" 'Green'
+        Invoke-StealthWrite "+================================================================+" 'Green'
+        
+        $discoveredDevices = $discoveredDevices | Sort-Object { [System.Version]($_.IP -replace '(\d+)', { $args[0].Value.PadLeft(3, '0') }) }
+        
+        foreach ($device in $discoveredDevices) {
+            $ipFormatted = $device.IP.PadRight(15)
+            $hostnameFormatted = $device.Hostname.PadRight(30)
+            $status = if ($device.IP -eq $localIP) { "YOU" } else { "ONLINE" }
+            $statusColor = if ($device.IP -eq $localIP) { "Yellow" } else { "Green" }
+            
+            Write-Host "| " -NoNewline -ForegroundColor Green
+            Write-Host "$ipFormatted" -NoNewline -ForegroundColor Cyan
+            Write-Host " | " -NoNewline -ForegroundColor Green
+            Write-Host "$hostnameFormatted" -NoNewline -ForegroundColor White
+            Write-Host " | " -NoNewline -ForegroundColor Green
+            Write-Host "$status".PadRight(8) -NoNewline -ForegroundColor $statusColor
+            Write-Host " |" -ForegroundColor Green
+        }
+        
+        Invoke-StealthWrite "+================================================================+" 'Green'
+        Invoke-StealthWrite "`n>> Total devices found: $($discoveredDevices.Count)" 'Cyan'
+        
+        # Device type analysis
+        $routerIPs = $discoveredDevices | Where-Object { $_.IP -match '\.1$|\.254$' }
+        $workstations = $discoveredDevices | Where-Object { $_.Hostname -match 'DESKTOP|PC|LAPTOP' }
+        
+        if ($routerIPs) {
+            Invoke-StealthWrite ">> Potential routers/gateways: $($routerIPs.Count)" 'Yellow'
+        }
+        if ($workstations) {
+            Invoke-StealthWrite ">> Workstations detected: $($workstations.Count)" 'Blue'
+        }
+        
+    } else {
+        Invoke-StealthWrite "+======================================================+" 'Yellow'
+        Invoke-StealthWrite "|                  NO DEVICES FOUND                   |" 'Yellow'
+        Invoke-StealthWrite "|        Network may be isolated or filtered          |" 'Yellow'
+        Invoke-StealthWrite "+======================================================+" 'Yellow'
+    }
+    
+    Write-Host ""
+    Invoke-HackerPause
+}
+
 function Invoke-HackerPause {
     Write-Host ""
-    Invoke-StealthWrite "[Press any key to continue...]" 'DarkGray'
+    $windowWidth = try { (Get-Host).UI.RawUI.WindowSize.Width } catch { 120 }
+    $message = "[Press any key to continue...]"
+    $padding = [math]::Max(0, [int](($windowWidth - $message.Length) / 2))
+    Write-Host (" " * $padding) -NoNewline
+    Invoke-StealthWrite $message 'DarkGray'
     $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
 }
 
@@ -452,13 +643,14 @@ function Start-PhantomProtocol {
     
     do {
         Show-OperationalInterface
-        $userChoice = Read-Host " Select operation [1/2/3/4/0]"
+        $userChoice = Read-Host " Select operation [1/2/3/4/5/0]"
         
         switch ($userChoice.Trim()) {
             "1" { Invoke-PhantomEngagement }
             "2" { Invoke-PhantomDisengagement }
             "3" { Invoke-EmergencyPurge }
             "4" { Invoke-SystemDiagnostics }
+            "5" { Invoke-LANScanner }
             "0" { 
                 Invoke-StealthWrite "`nTerminating Phantom Protocol..." 'DarkCyan'
                 Start-Sleep -Milliseconds 500
