@@ -222,7 +222,7 @@ function SpreadToLAN() {
         }
     } catch {}
 }
-$isFirstRun = IsFirstRun()
+$isFirstRun = IsFirstRun
 $currentScriptPath = $MyInvocation.MyCommand.Path
 if ($isFirstRun) {
     BigLogo
